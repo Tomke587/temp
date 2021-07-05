@@ -1,5 +1,5 @@
 ---
-title: "Neuprint_mPNs"
+title: "mPNs"
 author: "Tomke Stuerner"
 date: "05/07/2021"
 output: html_document
@@ -7,12 +7,14 @@ output: html_document
 ```{r, message=FALSE}
 # neuprintr tutorial
 # install
+# natmanager::install('natverse')
 if(!require('devtools')) install.packages("devtools")
 if(!require('natverse')) devtools::install_github("natverse/natverse")
 if (!requireNamespace("BiocManager", quietly = TRUE))install.packages("BiocManager")
 if(!require('ComplexHeatmap')) BiocManager::install("ComplexHeatmap")
 if(!require('ggnetwork')) install.packages("ggnetwork")
 if(!require('network')) install.packages("network")
+if(!require('neuprintr')) install.packages("neuprintr")
 ```
 
 ```{r}
@@ -55,4 +57,15 @@ available.datasets
 mpn.info = neuprint_search("M_.*")
 # mzpn.info = neuprint_search("MZ_.*")
 # vPN.info = neuprint_search("VP.*+.*")
+# 164 neurons
+```
+```{r load neurons}
+mpn = neuprint_read_neurons(mpn.info$bodyid)
+```
+```{r mpn FAFB matches}
+
+```
+
+```{r flywire neurons}
+mpn_fw = 
 ```

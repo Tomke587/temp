@@ -1,0 +1,58 @@
+---
+title: "Neuprint_mPNs"
+author: "Tomke Stuerner"
+date: "05/07/2021"
+output: html_document
+---
+```{r, message=FALSE}
+# neuprintr tutorial
+# install
+if(!require('devtools')) install.packages("devtools")
+if(!require('natverse')) devtools::install_github("natverse/natverse")
+if (!requireNamespace("BiocManager", quietly = TRUE))install.packages("BiocManager")
+if(!require('ComplexHeatmap')) BiocManager::install("ComplexHeatmap")
+if(!require('ggnetwork')) install.packages("ggnetwork")
+if(!require('network')) install.packages("network")
+```
+
+```{r}
+# load
+library(natverse)
+library(neuprintr)
+library(dendroextras)
+library(ComplexHeatmap)
+library(ggnetwork)
+library(network)
+```
+
+```{r}
+# Colours
+## some nice colors!! Inspired by LaCroixColoR
+lacroix = c("#C70E7B", "#FC6882", "#007BC3", "#54BCD1", "#EF7C12", "#F4B95A", 
+            "#009F3F", "#8FDA04", "#AF6125", "#F4E3C7", "#B25D91", "#EFC7E6", 
+            "#EF7C12", "#F4B95A", "#C23A4B", "#FBBB48", "#EFEF46", "#31D64D", 
+            "#132157","#EE4244", "#D72000", "#1BB6AF")
+names(lacroix) = c("purple", "pink",
+                   "blue", "cyan",
+                   "darkorange", "paleorange",
+                   "darkgreen", "green",
+                   "brown", "palebrown",
+                   "mauve", "lightpink",
+                   "orange", "midorange",
+                   "darkred", "darkyellow",
+                   "yellow", "palegreen", 
+                   "navy","cerise",
+                   "red", "marine")
+```
+
+```{r}
+## Then see if a simple function works for you:
+available.datasets = neuprint_datasets()
+available.datasets
+```
+```{r}
+### all multiglomerular PNs in the Hemibrain dataset
+mpn.info = neuprint_search("M_.*")
+# mzpn.info = neuprint_search("MZ_.*")
+# vPN.info = neuprint_search("VP.*+.*")
+```

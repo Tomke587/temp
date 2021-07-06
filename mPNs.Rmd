@@ -69,19 +69,30 @@ mpn.info = neuprint_search("M_.*")
 ```{r load neurons}
 mpn = neuprint_read_neurons(mpn.info$bodyid)
 ```
+Plot mPNs and select the ones with widespread dendritic arbors, innervating most glomeruli
 ```{r plot hemibrain neurons}
-
 open3d(userMatrix = structure(c(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1), .Dim = c(4L, 4L)), zoom = 0.644609212875366, 
        windowRect = c(0L, 45L, 1025L, 770L))
 # AL=shapelist3d(lapply(c("AL(R)"), neuprint_ROI_mesh), plot = F)
 wire3d(AL,col = 'grey', alpha = 0.05)
 test = nlscan(mpn, col = 'red', lwd = 2)
 test  
-# "1702306047" "1671608112" "1701299822" "1671638278"
-# "1700307582" "1102334088" "1888178718" "1671952694"
-# "577542489"  "1316245799" "731690040"  "1733370882"
-# "610274029"  "610274046" 
+# 14 mPNs that have widespread dendritic arbors
+# test = c("1702306047", "1671608112", "1701299822", "1671638278",
+# "5813024692", "1102334088", "1888178718", "1671952694",
+# "577542489",  "1316245799", "731690040",  "1733370882",
+# "610274029",  "610274046", "1037293275", "1733677514",
+#  "1411784734")
 ```
+```{r look at those 14 mPNs}
+mpn = neuprint_read_neurons(mpn.info$bodyid)
+widespread_mpn = subset(mpn.info,mpn.info$bodyid %in% test)
+widespread_celltypes= unique(widespread_mpn$type)
+widespread_celltypes
+ # [1] "M_adPNm3"    "M_ilPN8t91"  "M_ilPNm90"   "M_imPNl92"   "M_l2PNl20"   "M_l2PNm16"   "M_lv2PN9t49" 
+ # [9] "M_lvPNm24"   "M_lvPNm25"   "M_spPN4t9"   "M_spPN5t10"  "M_vPNml50"   
+```
+Look through all flywire matches to see if I might have missed any that have widespread dendritic arbors 
 ```{r mpn FAFB matches}
 # # csv with PN clusters as in SchlegelBates et al S6: Comparison of ALPNs across three hemispheres.
 # PN_cluster = read.csv("/Users/tomke/Documents/dev/temp/across_ds_clusters.csv")
@@ -93,7 +104,7 @@ mPN_matches = matchesFAFB[grepl("^M_", matchesFAFB$cell.type), ]
 ```
 
 ```{r flywire}
-choose_segmentation("flywire31")
+choose_segmentation("flywire")
 catmaid_login() #this only works if you have your credentials saved in your environment
 ```
 
@@ -104,77 +115,21 @@ mpn_fw = read_cloudvolume_meshes(mpn_fw_id)
 ```
 
 ```{r plot flywire neurons}
+neurons = skeletor(mpn_fw_id)
 open3d(userMatrix = structure(c(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1), .Dim = c(4L, 4L)), zoom = 0.644609212875366, 
        windowRect = c(0L, 45L, 1025L, 770L))
-test = nlscan(mpn_fw, col = 'red', lwd = 2)
-test
-# 720575940612616354, 720575940634406030,
-# 720575940608771960, 720575940641817288,
-# 720575940614141725, 720575940657653377,
-# 720575940643268206, 720575940643267950,
-# 720575940628308284, 720575940612992479,
-# 720575940616841886, 720575940615096891,
-# 720575940628217564, 720575940632553879,
-# 720575940615488916, 720575940616942494,
-# 720575940628000567, 720575940621817085,
-# 720575940629475385, 720575940625508239
-mPNs_test = subset(mPN_matches, mPN_matches$flywire.id == test)
+# plot3d(neurons[1]) # note, in flywire space
+plot3d(FAFBNP.surf, "AL_R", alpha=.1, col = 'grey')
+test2 = nlscan(neurons, col = 'red', lwd = 2)
+test2
+widespread_flywire = subset(mPN_matches, mPN_matches$flywire.id %in% test2)
+widespread_flywire
+widespread_celltypes2 = unique(widesprea_flywire$cell.type)
+widespread_celltypes_more = setdiff(widespread_celltypes2, widespread_celltypes)
+widespread_celltypes_more
+```
+```{r widespread mPNs}
+widespread_mpn_flywire = subset(mPN_matches, mPN_matches$bodyid %in% widespread_mpn$bodyid)
+write.csv(widespread_mpn_flywire, "/Users/tomke/Documents/dev/temp/widespread_mpn_flywire.csv")
 ```
 
-2: M_ilPN8t91, M_ilPNm90_R
-```{r interesting mPNs}
-
-# x = mPN_matches[which(mPN_matches$flywire.id == "720575940615488916"), ]
-x = mPN_matches[which(mPN_matches$flywire.id == "720575940616942494"), ]
-x
-```
-M_imPNl92
-```{r interesting mPNs}
-
-x = mPN_matches[which(mPN_matches$bodyid == "1701299822"), ]
-x
-```
-M_l2PNl20
-```{r interesting mPNs}
-
-x = mPN_matches[which(mPN_matches$flywire.id == "720575940612616354"), ]
-x
-```
-M_l2PNl21?
-```{r interesting mPNs}
-
-x = mPN_matches[which(mPN_matches$bodyid == "1700307582"), ]
-x
-```
-M_lvPNm24_R
-```{r interesting mPNs}
-
-x = mPN_matches[which(mPN_matches$bodyid == "1671952694"), ]
-x = mPN_matches[which(mPN_matches$bodyid == "577542489"), ]
-x
-```
-
-
-2: M_spPN5t10
-```{r interesting mPNs}
-# left
-# x = mPN_matches[which(mPN_matches$bodyid == "731690040"), ]
-x = mPN_matches[which(mPN_matches$flywire.id == "720575940625508239"), ]
-x
-```
-
-
-M_spPN4t9
-```{r interesting mPNs}
-
-x = mPN_matches[which(mPN_matches$flywire.id == "720575940615096891"), ]
-x
-```
-2: M_lv2PN9t49_R
-```{r interesting mPNs}
-# x = mPN_matches[which(mPN_matches$bodyid == "1888178718"), ]
-x = mPN_matches[which(mPN_matches$bodyid == "1102334088"), ]
-x
-```
-
-M_vPNml50_R

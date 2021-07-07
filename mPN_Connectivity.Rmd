@@ -111,7 +111,47 @@ flywire_types= flywire_types%>% distinct(post_id, .keep_all = TRUE)
 flywire_types
 ```
 
+Neurotransmitter prediction:
+```{r NT pred for all mPNs}
+ntpred= flywire_ntpred(NoIname$post_id) #get neurotransmitter prediction for a neuron
+names(NoIname)[2] = "query"
+ntpred= left_join(NoIname, ntpred, by = "query")
+ntpred
+# # original URL (this will get auto-expanded as required)
+# u="https://ngl.flywire.ai/?json_url=https://globalv1.flywire-daf.com/nglstate/6495872422510592"
+# # update flywire_latestid
+# ngl_segments(u) <- pbapply::pbsapply(ngl_segments(u), flywire_latestid)
+# # updated long URL
+# u
+# # updated shortened URL
+u="https://ngl.flywire.ai/?json_url=https://globalv1.flywire-daf.com/nglstate/6588467622445056"
+sc=ngl_decode_scene(u)
+# if you wanted to use the clipboard
+# sc=ngl_decode_scene(clipr::read_clip())
+segs=ngl_segments(sc)
+# partners=flywire_partners(segs)
+# # convert R list object back to URL
+# browseURL(as.character(sc))
+# # connection summary for those neurons
+# pp=flywire_partner_summary(segs)
+# gt200 <- pp %>%
+#   group_by(post_id) %>%
+#   arrange(query) %>%
+#   summarise(n=n(), w=sum(weight), w1=weight[1], w2=weight[2]) %>%
+#   arrange(desc(w)) %>%
+#   filter(w>200)
+# # add those (very strong) partners to the existing scene
+# # and convert to URL
+# u2=as.character(sc+gt200$post_id)
+# neurotransmitter predictions for the starter neurons
+segs = as.character(segs)
+ntpreds <- sapply(segs, function(x) flywire_ntpred(x), simplify = FALSE)
+  # sapply(segs, function(x) flywire_ntpred(x), simplify = FALSE)
+ntpreds[[1]]
+flywire_ntpred("")
+flywire_ntplot3d(ntpreds[[1]], plot = 'points', size=5, cleft.threshold = 100)
 
+```
 
 # Interconnectivity
 1. M_spPN4t9 + M_l2PNl20 (+mALB1)
@@ -163,7 +203,7 @@ neuprint_get_meta(c1)
 #  LHPV10b1_R, WEDPN6A_R, WEDPN4_R, M_lv2PN9t49_R, SMP081_R
 ```
 
-Single neuron_type plots and connectivity
+Single neuron_type plots, transmitter and connectivity
 Flywire neurons plot
 ```{r plot flywire neurons}
 neuron_R =	"720575940615096891"
@@ -183,7 +223,6 @@ plot3d(neuronvol_L,add= TRUE, col = "blue", alpha = 0.6)
 rgl.snapshot(filename = "./images/M_spPN4t9_Flywire.png" , fmt = "png" )
 # rgl.snapshot(filename = "./images/M_l2PNl20_Flywire.png" , fmt = "png" )
 ```
-
 
 Upstream
 ```{r sum upstream partners}

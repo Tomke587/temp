@@ -1,0 +1,203 @@
+---
+title: "Connectivity"
+author: "Tomke Stuerner"
+date: "06/07/2021"
+output: html_document
+---
+
+```{r, message=FALSE}
+library(hemibrainr)
+library(natverse)
+library(fafbseg)
+library(reticulate)
+library(googlesheets4)
+library(dplyr)
+library(neuprintr)
+library(catmaid)
+library(catnat)
+```
+
+```{r rgl_plotsetup}
+rgl_usermat = structure(c(0.98662239,  -0.1360703,  0.08978364, 0, 
+                          0.06441419,  -0.1805410, -0.98145604, 0, 
+                          0.14975676,   0.9741101, -0.16936085, 0, 
+                          0,            0,          0,          1), .Dim = c(4L, 4L))
+rgl_zoom = 1
+rgl_rect = c(0L, 45L, 1171L, 823L)
+```
+
+```{r flywire}
+choose_segmentation("flywire31")
+catmaid_login() #this only works if you have your credentials saved in your environment
+```
+
+get the flywire ids of all MBON, LHCENTs in flywire
+```{r MBON, LHCENT, DNs, ANs and other matched types flywire}
+
+gs4_auth("ts587@cam.ac.uk")
+MBON = read_sheet("1bDaCiwdzg5BffT1b7CydUjrRlYtVL1Hwtsl-rQm7wUE")
+MBONpts= subset(MBON$xyz,(!is.na(MBON$xyz)))
+MBONid = flywire_xyz2id(MBONpts, rawcoords=TRUE)
+MBONtype = subset(MBON$Type,(MBON$xyz!= 'NA'))
+MBONname= data.frame(MBONtype, MBONid, MBONpts)
+names(MBONname)[1] = "type"
+names(MBONname)[2] = "post_id"
+names(MBONname)[3] = "xyz"
+
+
+LHCENT = read_sheet("1prxk5N4gekXEtGy2UdYKLCeF2XNU2I9IZr-2OJQTVjQ", sheet = 'master')
+pts_R= subset(LHCENT$`Flywire R XYZ`,(!is.na(LHCENT$`Flywire R XYZ`)))
+pts_L= subset(LHCENT$`Flywire L XYZ`,(!is.na(LHCENT$`Flywire L XYZ`)))
+LHCENTpts = c(as.character(pts_R), as.character(pts_L))
+LHCENTpts = LHCENTpts[LHCENTpts != "*"]
+LHCENTid = flywire_xyz2id(LHCENTpts, rawcoords=TRUE)
+LHCENTtype_R = subset(LHCENT$`FIB R name`,(!is.na(LHCENT$`Flywire R XYZ`)))
+LHCENTtype_R = subset(LHCENT$`FIB R name`,(LHCENT$`Flywire R XYZ`!= "*"))
+LHCENTtype_L = subset(LHCENT$`FIB R name`,(!is.na(LHCENT$`Flywire L XYZ`)))
+LHCENTtype = c(as.character(LHCENTtype_R), as.character(LHCENTtype_L))
+# LHCENTtype= unlist(LHCENTtype, use.names=FALSE)
+LHCENTname= data.frame(LHCENTtype, LHCENTid, LHCENTpts)
+names(LHCENTname)[1] = "type"
+names(LHCENTname)[2] = "post_id"
+names(LHCENTname)[3] = "xyz"
+
+gs4_auth("tomke.stuerner@googlemail.com")
+putative_DN = read_sheet("1vwlsODui1_kHCvLSyEWkbOoTwBZa52nJQNV_7BVSXc4", sheet = "FlyWire_DNs_April")
+DNpts= subset(putative_DN$flywire.xyz,(!is.na(putative_DN$flywire.xyz)))
+p_DNid = flywire_xyz2id(DNpts, rawcoords=TRUE)
+DNpid = data.frame(DNpts,p_DNid)
+DNtype = replicate(length(p_DNid), "DN")
+DNname= data.frame(DNtype, p_DNid, DNpts)
+names(DNname)[1] = "type"
+names(DNname)[2] = "post_id"
+names(DNname)[3] = "xyz"
+
+AN = read_sheet("10T0JE6nVSz_uUdoHGOpV2odO_k75-arRPKdOiBXlS80", sheet = "ANs")
+ANpts= subset(AN$flywire.xyz,(!is.na(AN$flywire.xyz)))
+ANid = flywire_xyz2id(ANpts, rawcoords=TRUE)
+ANtype = replicate(length(ANid), "AN")
+ANname= data.frame(ANtype, ANid, ANpts)
+names(ANname)[1] = "type"
+names(ANname)[2] = "post_id"
+names(ANname)[3] = "xyz"
+# flywire_types= bind_rows(MBONname, LHCENTname, DNname, ANname)
+
+matches = read_sheet("1OSlDtnR3B1LiB5cwI5x5Ql6LkZd8JOS5bBr-HTi0pOw", sheet = "hemibrain")
+matchespts= subset(matches$flywire.xyz,(!is.na(matches$flywire.xyz)))
+matchesid = flywire_xyz2id(matchespts, rawcoords=TRUE)
+matchestype = subset(matches$cell.type,(matches$flywire.xyz!= 'NA'))
+matchesname= data.frame(matchestype, matchesid, matchespts)
+matchesname= matchesname[complete.cases(matchesname), ]
+names(matchesname)[1] = "type"
+names(matchesname)[2] = "post_id"
+names(matchesname)[3] = "xyz"
+
+gs4_auth("ts587@cam.ac.uk")
+NoI = read_sheet("1HcaY5dXD_SoUuQ2Y7dE9q1pc6XX6nsfLDl26a9MxCOE", sheet = "multiglom_neurons")
+NoIpts= subset(NoI$flywire.xyz,(!is.na(NoI$flywire.xyz)))
+NoIid = flywire_xyz2id(NoIpts, rawcoords=TRUE)
+NoItype = subset(NoI$name,(NoI$flywire.xyz!= 'NA'))
+NoIname= data.frame(NoItype, NoIid, NoIpts)
+NoIname= NoIname[complete.cases(NoIname), ]
+names(NoIname)[1] = "type"
+names(NoIname)[2] = "post_id"
+names(NoIname)[3] = "xyz"
+
+
+flywire_types= bind_rows(MBONname, LHCENTname, DNname, ANname, matchesname, NoIname)
+# flywire_types= unique(flywire_types)
+flywire_types= flywire_types%>% distinct(post_id, .keep_all = TRUE)
+flywire_types
+```
+
+
+```{r Common downstream partners}
+# not avaiable for flywire, therefore check in neuprint
+test= c("610274046", "610274029", "5812996641")
+
+NoI$hemibrain.match= as.character(NoI$hemibrain.match)
+NOIhemibrainid= NoI$hemibrain.match
+NOIhemibrainid = subset(NOIhemibrainid,(!is.na(NOIhemibrainid)))
+common = neuprint_common_connectivity(NOIhemibrainid, prepost = "POST") # could use 'post' for downstream
+dim(common) 
+common
+# 1316245799 M_spPN4t9
+# 1663021115 fragment
+```
+
+```{r connectivity of all neurons of interest to eachother}
+"https://ngl.flywire.ai/?json_url=https://globalv1.flywire-daf.com/nglstate/5668177463738368"
+sm=flywire_adjacency_matrix(NoIname$post_id)
+NoI_conn=sm
+colnames(NoI_conn) <- NoIname$type[match(colnames(NoI_conn), NoIname$post_id)]
+rownames(NoI_conn) <- NoIname$type[match(rownames(NoI_conn), NoIname$post_id)]
+# scaled to give proportion of inputs onto each target cell
+heatmap(NoI_conn, scale='col', cexRow = 0.5, cexCol = 0.5)
+# scale='none' => raw counts
+png(file= "NoI_interconnectivity.png",    # create PNG for the heat map        
+  width = 5*300,        # 5 x 300 pixels
+  height = 5*300,
+  res = 300,            # 300 pixels per inch
+  pointsize = 8)        # smaller font size
+
+h=heatmap(NoI_conn, scale='none', keep.dendro = TRUE, cexRow = 0.5, cexCol = 0.5)
+while (!is.null(dev.list()))  dev.off()
+dev.off() # people often forget this step - did you?
+# same but with the cleft threshold applied
+# smc=flywire_adjacency_matrix(u, cleft.threshold = 30)
+# h=heatmap(smc, scale='none', keep.dendro = TRUE)
+
+```
+
+Single neurons plot and connectivity
+Flywire neurons plot
+```{r plot flywire neurons}
+neuron_R =	"720575940612616354"
+neuron_L =	"720575940612379282"
+neurons = c(neuron_R, neuron_L)
+
+neuronvol_R =	read_cloudvolume_meshes(neuron_R)
+neuronvol_L =	read_cloudvolume_meshes(neuron_L)
+
+# n1_CM = fetchn_fafb(11546775,mirror = FALSE,reference = "FlyWire")
+open3d(userMatrix = structure(c(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1), .Dim = c(4L, 4L)), zoom = 0.644609212875366, 
+       windowRect = c(0L, 45L, 1025L, 770L))
+# plot3d(n1_CM, col = "magenta")
+plot3d(neuronvol_R,add= TRUE, col = "green", alpha = 0.6)
+plot3d(neuronvol_L,add= TRUE, col = "blue", alpha = 0.6)
+
+rgl.snapshot(filename = "M_l2PNl20_Flywire.png" , fmt = "png" )
+```
+
+
+Upstream
+```{r sum upstream partners}
+# Partners_in = flywire_partners(neurons, partners = c("inputs"), details = TRUE) #get the upstream partners with synapse location
+Partner_summary_in = flywire_partner_summary(neurons, partners = "inputs") #get a list of upstream partner with n synapse connected
+names(flywire_types)[2] = "pre_id"
+Partner_summary_in_types= left_join(Partner_summary_in, flywire_types, by = "pre_id")
+Partner_summary_in_types_5 = subset(Partner_summary_in_types, Partner_summary_in_types$weight > 5)
+Partner_summary_in_types_5 = Partner_summary_in_types_5[order(-Partner_summary_in_types_5$weight),]
+write.csv(Partner_summary_in_types_5, file = "M_l2PNl20_partner_summary_in_5.csv")
+Partner_summary_in_types_5
+```
+Downstream
+```{r sum downstream partners}
+# Partners_out = flywire_partners(neurons, partners = c("outputs"), details = TRUE) #get the upstream partners with synapse location
+Partner_summary_out = flywire_partner_summary(neurons, partners = "outputs") #get a list of upstream partner with n synapse connected
+names(flywire_types)[2] = "post_id"
+Partner_summary_out_types= left_join(Partner_summary_out, flywire_types, by = "post_id")
+Partner_summary_out_types_5 = subset(Partner_summary_out_types, Partner_summary_out_types$weight > 5)
+Partner_summary_out_types_5 = Partner_summary_out_types_5[order(-Partner_summary_out_types_5$weight),]
+write.csv(Partner_summary_out_types_5, file = "M_l2PNl20_partner_summary_out_5.csv")
+Partner_summary_out_types_5
+```
+```{r plot downstream partners}
+Partner_summary_out_types_50 = subset(Partner_summary_out_types_5, Partner_summary_out_types_5$weight > 50)
+Partner_summary_out_types_50$query = as.character(Partner_summary_out_types_50$query)
+Partner_summary_out_types_50$post_id = as.character(Partner_summary_out_types_50$post_id)
+Partner_summary_out_types_50
+Partner_out_plot = ggplot(Partner_summary_out_types_50, aes(x = query, y = type, fill = weight, )) +   geom_tile() + theme(text = element_text(size=8),axis.text.x = element_text(angle=90, hjust=1), axis.text.y = element_text(hjust=1))
+ggsave("M_l2PNl20_Partner_summary_out_types_50.png")
+Partner_out_plot
+```

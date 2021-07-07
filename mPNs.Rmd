@@ -61,10 +61,11 @@ available.datasets
 ```
 ```{r}
 ### all multiglomerular PNs in the Hemibrain dataset
-mpn.info = neuprint_search("M_.*")
+mpn_info = neuprint_search("M_.*")
 # mzpn.info = neuprint_search("MZ_.*")
 # vPN.info = neuprint_search("VP.*+.*")
 # 164 neurons
+write.csv(mpn_info, file = "mpn_info.csv")
 ```
 ```{r load neurons}
 mpn = neuprint_read_neurons(mpn.info$bodyid)
@@ -85,8 +86,8 @@ test
 #  "1411784734")
 ```
 ```{r look at those 14 mPNs}
-mpn = neuprint_read_neurons(mpn.info$bodyid)
-widespread_mpn = subset(mpn.info,mpn.info$bodyid %in% test)
+mpn = neuprint_read_neurons(mpn_info$bodyid)
+widespread_mpn = subset(mpn_info,mpn_info$bodyid %in% test)
 widespread_celltypes= unique(widespread_mpn$type)
 widespread_celltypes
  # [1] "M_adPNm3"    "M_ilPN8t91"  "M_ilPNm90"   "M_imPNl92"   "M_l2PNl20"   "M_l2PNm16"   "M_lv2PN9t49" 
@@ -101,6 +102,9 @@ Look through all flywire matches to see if I might have missed any that have wid
 matches = read_sheet("1OSlDtnR3B1LiB5cwI5x5Ql6LkZd8JOS5bBr-HTi0pOw", sheet = "hemibrain")
 matchesFAFB = subset(matches,(!is.na(matches$FAFB.match)))
 mPN_matches = matchesFAFB[grepl("^M_", matchesFAFB$cell.type), ]
+write.csv(mPN_matches, file = "mPN_matches.csv")
+mpn_info_matches= left_join(mpn.info, mPN_matches, by = "bodyid")
+write.csv(mpn_info_matches, file = "mpn_info_matches.csv")
 ```
 
 ```{r flywire}

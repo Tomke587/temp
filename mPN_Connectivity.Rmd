@@ -15,6 +15,7 @@ library(dplyr)
 library(neuprintr)
 library(catmaid)
 library(catnat)
+library(ggplot2)
 ```
 
 ```{r rgl_plotsetup}
@@ -111,28 +112,18 @@ flywire_types
 ```
 
 
-```{r Common downstream partners}
-# not avaiable for flywire, therefore check in neuprint
-test= c("610274046", "610274029", "5812996641")
 
-NoI$hemibrain.match= as.character(NoI$hemibrain.match)
-NOIhemibrainid= NoI$hemibrain.match
-NOIhemibrainid = subset(NOIhemibrainid,(!is.na(NOIhemibrainid)))
-common = neuprint_common_connectivity(NOIhemibrainid, prepost = "POST") # could use 'post' for downstream
-dim(common) 
-common
-# 1316245799 M_spPN4t9
-# 1663021115 fragment
-```
-
+# Interconnectivity
+1. M_spPN4t9 + M_l2PNl20 (+mALB1)
+2. AL-MBDL1 + M_spPN5t10
+3. ALBN1, M_vPNml50 with themselves
 ```{r connectivity of all neurons of interest to eachother}
 "https://ngl.flywire.ai/?json_url=https://globalv1.flywire-daf.com/nglstate/5668177463738368"
-sm=flywire_adjacency_matrix(NoIname$post_id)
-NoI_conn=sm
+NoI_conn=flywire_adjacency_matrix(NoIname$post_id)
 colnames(NoI_conn) <- NoIname$type[match(colnames(NoI_conn), NoIname$post_id)]
 rownames(NoI_conn) <- NoIname$type[match(rownames(NoI_conn), NoIname$post_id)]
 # scaled to give proportion of inputs onto each target cell
-heatmap(NoI_conn, scale='col', cexRow = 0.5, cexCol = 0.5)
+# heatmap(NoI_conn, scale='col', cexRow = 0.5, cexCol = 0.5)
 # scale='none' => raw counts
 png(file= "NoI_interconnectivity.png",    # create PNG for the heat map        
   width = 5*300,        # 5 x 300 pixels
@@ -141,19 +132,42 @@ png(file= "NoI_interconnectivity.png",    # create PNG for the heat map
   pointsize = 8)        # smaller font size
 
 h=heatmap(NoI_conn, scale='none', keep.dendro = TRUE, cexRow = 0.5, cexCol = 0.5)
-while (!is.null(dev.list()))  dev.off()
 dev.off() # people often forget this step - did you?
 # same but with the cleft threshold applied
 # smc=flywire_adjacency_matrix(u, cleft.threshold = 30)
 # h=heatmap(smc, scale='none', keep.dendro = TRUE)
-
 ```
 
-Single neurons plot and connectivity
+```{r Common downstream partners}
+# not avaiable for flywire, therefore check in neuprint
+# 1. M_spPN4t9 + M_l2PNl20 (+mALB1) 5 common downstream targets (>10)
+# 2. AL-MBDL1 + M_spPN5t10 NONE
+test1= c("1316245799", "1671638278")
+# test2= c("608922563", "731690040","1733370882")
+
+# NoI$hemibrain.match= as.character(NoI$hemibrain.match)
+# NOIhemibrainid= NoI$hemibrain.match
+# NOIhemibrainid = subset(NOIhemibrainid,(!is.na(NOIhemibrainid)))
+
+common = neuprint_common_connectivity(test1, prepost = "POST") # could use 'post' for downstream
+# common = neuprint_common_connectivity(test2, prepost = "POST")
+dim(common) 
+common
+rownames(common) = c("M_spPN4t9", "M_l2PNl20")
+
+M_spPN4t9_M_l2PNl20 = as.data.frame(t(common))
+M_spPN4t9_M_l2PNl20 = subset(M_spPN4t9_M_l2PNl20, M_spPN4t9_M_l2PNl20$M_spPN4t9 > 10)
+M_spPN4t9_M_l2PNl20 = subset(M_spPN4t9_M_l2PNl20, M_spPN4t9_M_l2PNl20$M_l2PNl20 > 10)
+c1 = rownames(M_spPN4t9_M_l2PNl20)
+neuprint_get_meta(c1)
+#  LHPV10b1_R, WEDPN6A_R, WEDPN4_R, M_lv2PN9t49_R, SMP081_R
+```
+
+Single neuron_type plots and connectivity
 Flywire neurons plot
 ```{r plot flywire neurons}
-neuron_R =	"720575940612616354"
-neuron_L =	"720575940612379282"
+neuron_R =	"720575940615096891"
+neuron_L =	"720575940624171838"
 neurons = c(neuron_R, neuron_L)
 
 neuronvol_R =	read_cloudvolume_meshes(neuron_R)
@@ -165,8 +179,9 @@ open3d(userMatrix = structure(c(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1
 # plot3d(n1_CM, col = "magenta")
 plot3d(neuronvol_R,add= TRUE, col = "green", alpha = 0.6)
 plot3d(neuronvol_L,add= TRUE, col = "blue", alpha = 0.6)
-
-rgl.snapshot(filename = "M_l2PNl20_Flywire.png" , fmt = "png" )
+# dir.create("images")
+rgl.snapshot(filename = "./images/M_spPN4t9_Flywire.png" , fmt = "png" )
+# rgl.snapshot(filename = "./images/M_l2PNl20_Flywire.png" , fmt = "png" )
 ```
 
 
@@ -178,7 +193,9 @@ names(flywire_types)[2] = "pre_id"
 Partner_summary_in_types= left_join(Partner_summary_in, flywire_types, by = "pre_id")
 Partner_summary_in_types_5 = subset(Partner_summary_in_types, Partner_summary_in_types$weight > 5)
 Partner_summary_in_types_5 = Partner_summary_in_types_5[order(-Partner_summary_in_types_5$weight),]
-write.csv(Partner_summary_in_types_5, file = "M_l2PNl20_partner_summary_in_5.csv")
+# dir.create("connectivity")
+# write.csv(Partner_summary_in_types_5, file = "./connectivity/M_l2PNl20_partner_summary_in_5.csv")
+write.csv(Partner_summary_in_types_5, file = "./connectivity/M_spPN4t9_partner_summary_in_5.csv")
 Partner_summary_in_types_5
 ```
 Downstream
@@ -189,7 +206,8 @@ names(flywire_types)[2] = "post_id"
 Partner_summary_out_types= left_join(Partner_summary_out, flywire_types, by = "post_id")
 Partner_summary_out_types_5 = subset(Partner_summary_out_types, Partner_summary_out_types$weight > 5)
 Partner_summary_out_types_5 = Partner_summary_out_types_5[order(-Partner_summary_out_types_5$weight),]
-write.csv(Partner_summary_out_types_5, file = "M_l2PNl20_partner_summary_out_5.csv")
+write.csv(Partner_summary_out_types_5, file = "./connectivity/M_spPN4t9_partner_summary_out_5.csv")
+# write.csv(Partner_summary_out_types_5, file = "./connectivity/M_l2PNl20_partner_summary_out_5.csv")
 Partner_summary_out_types_5
 ```
 ```{r plot downstream partners}
@@ -198,6 +216,7 @@ Partner_summary_out_types_50$query = as.character(Partner_summary_out_types_50$q
 Partner_summary_out_types_50$post_id = as.character(Partner_summary_out_types_50$post_id)
 Partner_summary_out_types_50
 Partner_out_plot = ggplot(Partner_summary_out_types_50, aes(x = query, y = type, fill = weight, )) +   geom_tile() + theme(text = element_text(size=8),axis.text.x = element_text(angle=90, hjust=1), axis.text.y = element_text(hjust=1))
-ggsave("M_l2PNl20_Partner_summary_out_types_50.png")
+# ggsave("./connectivity/M_l2PNl20_Partner_summary_out_types_50.png")
+ggsave("./connectivity/M_spPN4t9_Partner_summary_out_types_50.png")
 Partner_out_plot
 ```

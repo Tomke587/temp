@@ -148,7 +148,7 @@ segs = as.character(segs)
 ntpreds <- sapply(segs, function(x) flywire_ntpred(x), simplify = FALSE)
   # sapply(segs, function(x) flywire_ntpred(x), simplify = FALSE)
 ntpreds[[1]]
-flywire_ntpred("")
+# flywire_ntpred("720575940634406030")
 flywire_ntplot3d(ntpreds[[1]], plot = 'points', size=5, cleft.threshold = 100)
 
 ```
@@ -206,12 +206,20 @@ neuprint_get_meta(c1)
 Single neuron_type plots, transmitter and connectivity
 Flywire neurons plot
 ```{r plot flywire neurons}
-neuron_R =	"720575940615096891"
-neuron_L =	"720575940624171838"
+
+neuron_R =	"720575940628000567"
+neuron_L =	"720575940616624182"
+# neuron_R1 =	"720575940643268206"
+# neuron_L1 =	"720575940631539993"
+
+# neurons = c(neuron_R, neuron_L, neuron_R1, neuron_L1)
 neurons = c(neuron_R, neuron_L)
+
 
 neuronvol_R =	read_cloudvolume_meshes(neuron_R)
 neuronvol_L =	read_cloudvolume_meshes(neuron_L)
+# neuronvol_R1 =	read_cloudvolume_meshes(neuron_R1)
+# neuronvol_L1 =	read_cloudvolume_meshes(neuron_L1)
 
 # n1_CM = fetchn_fafb(11546775,mirror = FALSE,reference = "FlyWire")
 open3d(userMatrix = structure(c(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1), .Dim = c(4L, 4L)), zoom = 0.644609212875366, 
@@ -219,9 +227,15 @@ open3d(userMatrix = structure(c(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1
 # plot3d(n1_CM, col = "magenta")
 plot3d(neuronvol_R,add= TRUE, col = "green", alpha = 0.6)
 plot3d(neuronvol_L,add= TRUE, col = "blue", alpha = 0.6)
+# plot3d(neuronvol_R1,add= TRUE, col = "lightgreen", alpha = 0.6)
+# plot3d(neuronvol_L1,add= TRUE, col = "lightblue", alpha = 0.6)
 # dir.create("images")
-rgl.snapshot(filename = "./images/M_spPN4t9_Flywire.png" , fmt = "png" )
+# rgl.snapshot(filename = "./images/M_ilPN8t91_M_ilPNm90_Flywire.png" , fmt = "png" )
+# rgl.snapshot(filename = "./images/M_spPN4t9_Flywire.png" , fmt = "png" )
 # rgl.snapshot(filename = "./images/M_l2PNl20_Flywire.png" , fmt = "png" )
+rgl.snapshot(filename = "./images/M_imPNl92_Flywire.png" , fmt = "png" ) #only one
+# rgl.snapshot(filename = "./images/M_spPN5t10_Flywire.png" , fmt = "png" )
+# rgl.snapshot(filename = "./images/M_vPNml50_Flywire.png" , fmt = "png" )
 ```
 
 Upstream
@@ -234,7 +248,12 @@ Partner_summary_in_types_5 = subset(Partner_summary_in_types, Partner_summary_in
 Partner_summary_in_types_5 = Partner_summary_in_types_5[order(-Partner_summary_in_types_5$weight),]
 # dir.create("connectivity")
 # write.csv(Partner_summary_in_types_5, file = "./connectivity/M_l2PNl20_partner_summary_in_5.csv")
-write.csv(Partner_summary_in_types_5, file = "./connectivity/M_spPN4t9_partner_summary_in_5.csv")
+# write.csv(Partner_summary_in_types_5, file = "./connectivity/M_spPN4t9_partner_summary_in_5.csv")
+# write.csv(Partner_summary_in_types_5, file = "./connectivity/M_ilPN8t91_M_ilPNm90_partner_summary_in_5.csv")
+# write.csv(Partner_summary_in_types_5, file = "./connectivity/M_imPNl92_partner_summary_in_5.csv")
+# write.csv(Partner_summary_in_types_5, file = "./connectivity/M_lvPNm24_partner_summary_in_5.csv")
+# write.csv(Partner_summary_in_types_5, file = "./connectivity/M_spPN5t10_partner_summary_in_5.csv")
+write.csv(Partner_summary_in_types_5, file = "./connectivity/M_vPNml50_partner_summary_in_5.csv")
 Partner_summary_in_types_5
 ```
 Downstream
@@ -245,8 +264,13 @@ names(flywire_types)[2] = "post_id"
 Partner_summary_out_types= left_join(Partner_summary_out, flywire_types, by = "post_id")
 Partner_summary_out_types_5 = subset(Partner_summary_out_types, Partner_summary_out_types$weight > 5)
 Partner_summary_out_types_5 = Partner_summary_out_types_5[order(-Partner_summary_out_types_5$weight),]
-write.csv(Partner_summary_out_types_5, file = "./connectivity/M_spPN4t9_partner_summary_out_5.csv")
+# write.csv(Partner_summary_out_types_5, file = "./connectivity/M_spPN4t9_partner_summary_out_5.csv")
 # write.csv(Partner_summary_out_types_5, file = "./connectivity/M_l2PNl20_partner_summary_out_5.csv")
+# write.csv(Partner_summary_out_types_5, file = "./connectivity/M_ilPN8t91_M_ilPNm90_partner_summary_out_5.csv")
+# write.csv(Partner_summary_out_types_5, file = "./connectivity/M_imPNl92_partner_summary_out_5.csv")
+# write.csv(Partner_summary_out_types_5, file = "./connectivity/M_lvPNm24_partner_summary_out_5.csv")
+# write.csv(Partner_summary_out_types_5, file = "./connectivity/M_spPN5t10_partner_summary_out_5.csv")
+write.csv(Partner_summary_out_types_5, file = "./connectivity/M_vPNml50_partner_summary_out_5.csv")
 Partner_summary_out_types_5
 ```
 ```{r plot downstream partners}
@@ -256,6 +280,11 @@ Partner_summary_out_types_50$post_id = as.character(Partner_summary_out_types_50
 Partner_summary_out_types_50
 Partner_out_plot = ggplot(Partner_summary_out_types_50, aes(x = query, y = type, fill = weight, )) +   geom_tile() + theme(text = element_text(size=8),axis.text.x = element_text(angle=90, hjust=1), axis.text.y = element_text(hjust=1))
 # ggsave("./connectivity/M_l2PNl20_Partner_summary_out_types_50.png")
-ggsave("./connectivity/M_spPN4t9_Partner_summary_out_types_50.png")
+# ggsave("./connectivity/M_spPN4t9_Partner_summary_out_types_50.png")
+# ggsave("./connectivity/M_ilPN8t91_M_ilPNm90_Partner_summary_out_types_50.png")
+# ggsave("./connectivity/M_imPNl92_Partner_summary_out_types_50.png")
+# ggsave("./connectivity/M_lvPNm24_Partner_summary_out_types_50.png")
+# ggsave("./connectivity/M_spPN5t10_Partner_summary_out_types_50.png")
+ggsave("./connectivity/M_vPNml50_Partner_summary_out_types_50.png")
 Partner_out_plot
 ```

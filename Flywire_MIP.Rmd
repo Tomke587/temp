@@ -1,0 +1,53 @@
+---
+title: "flywire_MIP"
+author: "Tomke Stuerner"
+date: "08/07/2021"
+output: html_document
+---
+```{r, message=FALSE}
+library(natverse)
+library(fafbseg)
+library(elmr)
+library(nat.jrcbrains)
+```
+
+```{r flywire}
+choose_segmentation("flywire31")
+catmaid_login() #this only works if you have your credentials saved in your environment
+```
+
+```{r define the JRC2018U MIP}
+# define the JRC2018U MIP version as a templatebrain object:
+JRC2018Umip = templatebrain("JRC2018Umip", dims = c(1210,566,174), voxdims = c(0.519,0.519,1), units = "microns")
+```
+
+```{r load neuron and tranform}
+# load your neuron (swap this to fafbseg::skeletor("seg_id") to get FW neuron)
+LC_uDNb05 =  read_cloudvolume_meshes("720575940630813779")
+# LHPV10d1 =  read_cloudvolume_meshes("720575940616289605")
+# ALBN1 =  read_cloudvolume_meshes("720575940634330231")
+# MBDL1 =  read_cloudvolume_meshes("720575940639208949")
+# mALB1 =  read_cloudvolume_meshes("720575940613406786")
+# M_spPN5t10 =  read_cloudvolume_meshes("720575940628217564")
+# M_ilPN8t91 =  read_cloudvolume_meshes("720575940615488916")
+# M_ilPNm90 =  read_cloudvolume_meshes("720575940616942494")
+# M_ilPN = c("720575940616942494","720575940615488916" )
+# transform it to JRC2018U template
+LC_uDNb05.JRC2018U = xform_brain(LC_uDNb05, sample = "FAFB14", reference = JRC2018U)
+
+# create a 3d image from this (a 3D matrix, with 1s where the skeleton goes and 0s where there is no skeleton)
+# the only trick is that here we use the MIP brain template, to get the right dimensions for the output
+im = as.im3d(xyzmatrix(LC_uDNb05.JRC2018U), JRC2018Umip)
+
+# write out a nrrd file
+# dir.create("flywire_MIP")
+write.im3d(im, paste( "./flywire_MIP/LC_uDNb05.JRC2018U.nrrd"))
+# after you have this nrrd open it in Fiji
+```
+
+# I normally adjust the image until I can see the neuron (it's very thin so it's a bit tricky)
+# then I run 3D gaussian blur with 2 pixel radius, then readjust to have a reasonable width for the neuron (press apply in the image adjustment window)
+# after this you can run create the MIP (mean intensity projection) with the right color coding 2 ways:
+# wither use their plugin https://github.com/JaneliaSciComp/ColorMIP_Mask_Search (this doesn't work for me for whatever reason)
+# or run Image/Hyperstacks/Temporal color code and pick the "PsychedelicRainbow2" as a LUT -  this you also have to download from their github repo and put it in the right Fiji folder
+# save as a tif and upload on neuronbridge to find light level matches

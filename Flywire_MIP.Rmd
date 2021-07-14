@@ -23,7 +23,7 @@ JRC2018Umip = templatebrain("JRC2018Umip", dims = c(1210,566,174), voxdims = c(0
 
 ```{r load neuron and tranform}
 # load your neuron (swap this to fafbseg::skeletor("seg_id") to get FW neuron)
-LC_uDNb05 =  read_cloudvolume_meshes("720575940630813779")
+# LC_uDNb05 =  read_cloudvolume_meshes("720575940630813779")
 # LHPV10d1 =  read_cloudvolume_meshes("720575940616289605")
 # ALBN1 =  read_cloudvolume_meshes("720575940634330231")
 # MBDL1 =  read_cloudvolume_meshes("720575940639208949")
@@ -32,16 +32,17 @@ LC_uDNb05 =  read_cloudvolume_meshes("720575940630813779")
 # M_ilPN8t91 =  read_cloudvolume_meshes("720575940615488916")
 # M_ilPNm90 =  read_cloudvolume_meshes("720575940616942494")
 # M_ilPN = c("720575940616942494","720575940615488916" )
+AL_nosoma = read_cloudvolume_meshes("720575940604860802")
 # transform it to JRC2018U template
-LC_uDNb05.JRC2018U = xform_brain(LC_uDNb05, sample = "FAFB14", reference = JRC2018U)
+AL_nosoma.JRC2018U = xform_brain(AL_nosoma, sample = "FAFB14", reference = JRC2018U)
 
 # create a 3d image from this (a 3D matrix, with 1s where the skeleton goes and 0s where there is no skeleton)
 # the only trick is that here we use the MIP brain template, to get the right dimensions for the output
-im = as.im3d(xyzmatrix(LC_uDNb05.JRC2018U), JRC2018Umip)
+im = as.im3d(xyzmatrix(AL_nosoma.JRC2018U), JRC2018Umip)
 
 # write out a nrrd file
 # dir.create("flywire_MIP")
-write.im3d(im, paste( "./flywire_MIP/LC_uDNb05.JRC2018U.nrrd"))
+write.im3d(im, paste( "./flywire_MIP/AL_nosoma.JRC2018U.nrrd"))
 # after you have this nrrd open it in Fiji
 ```
 

@@ -209,12 +209,13 @@ Flywire neurons plot
 
 neuron_R =	"720575940628000567"
 neuron_L =	"720575940616624182"
-# neuron_R1 =	"720575940643268206"
-# neuron_L1 =	"720575940631539993"
+# neuron_R1 =	"720575940617683505"
+# neuron_L1 =	"720575940608687662"
 
-# neurons = c(neuron_R, neuron_L, neuron_R1, neuron_L1)
+# neurons = c(neuron_R, neuron_L, neuron_L1)
 neurons = c(neuron_R, neuron_L)
-
+flywire_islatest(neurons)
+# flywire_latestid(neurons)
 
 neuronvol_R =	read_cloudvolume_meshes(neuron_R)
 neuronvol_L =	read_cloudvolume_meshes(neuron_L)
@@ -250,10 +251,12 @@ Partner_summary_in_types_5 = Partner_summary_in_types_5[order(-Partner_summary_i
 # write.csv(Partner_summary_in_types_5, file = "./connectivity/M_l2PNl20_partner_summary_in_5.csv")
 # write.csv(Partner_summary_in_types_5, file = "./connectivity/M_spPN4t9_partner_summary_in_5.csv")
 # write.csv(Partner_summary_in_types_5, file = "./connectivity/M_ilPN8t91_M_ilPNm90_partner_summary_in_5.csv")
-# write.csv(Partner_summary_in_types_5, file = "./connectivity/M_imPNl92_partner_summary_in_5.csv")
+write.csv(Partner_summary_in_types_5, file = "./connectivity/M_imPNl92_partner_summary_in_5.csv")
 # write.csv(Partner_summary_in_types_5, file = "./connectivity/M_lvPNm24_partner_summary_in_5.csv")
 # write.csv(Partner_summary_in_types_5, file = "./connectivity/M_spPN5t10_partner_summary_in_5.csv")
-write.csv(Partner_summary_in_types_5, file = "./connectivity/M_vPNml50_partner_summary_in_5.csv")
+# write.csv(Partner_summary_in_types_5, file = "./connectivity/mALB1_partner_summary_in_5.csv")
+# write.csv(Partner_summary_in_types_5, file = "./connectivity/M_vPNml50_partner_summary_in_5.csv")
+# write.csv(Partner_summary_in_types_5, file = "./connectivity/ALBN1_partner_summary_in_5.csv")
 Partner_summary_in_types_5
 ```
 Downstream
@@ -267,10 +270,12 @@ Partner_summary_out_types_5 = Partner_summary_out_types_5[order(-Partner_summary
 # write.csv(Partner_summary_out_types_5, file = "./connectivity/M_spPN4t9_partner_summary_out_5.csv")
 # write.csv(Partner_summary_out_types_5, file = "./connectivity/M_l2PNl20_partner_summary_out_5.csv")
 # write.csv(Partner_summary_out_types_5, file = "./connectivity/M_ilPN8t91_M_ilPNm90_partner_summary_out_5.csv")
-# write.csv(Partner_summary_out_types_5, file = "./connectivity/M_imPNl92_partner_summary_out_5.csv")
+write.csv(Partner_summary_out_types_5, file = "./connectivity/M_imPNl92_partner_summary_out_5.csv")
 # write.csv(Partner_summary_out_types_5, file = "./connectivity/M_lvPNm24_partner_summary_out_5.csv")
 # write.csv(Partner_summary_out_types_5, file = "./connectivity/M_spPN5t10_partner_summary_out_5.csv")
-write.csv(Partner_summary_out_types_5, file = "./connectivity/M_vPNml50_partner_summary_out_5.csv")
+# write.csv(Partner_summary_out_types_5, file = "./connectivity/mALB1_partner_summary_out_5.csv")
+# write.csv(Partner_summary_out_types_5, file = "./connectivity/M_vPNml50_partner_summary_out_5.csv")
+# write.csv(Partner_summary_out_types_5, file = "./connectivity/ALBN1_partner_summary_out_5.csv")
 Partner_summary_out_types_5
 ```
 ```{r plot downstream partners}
@@ -282,9 +287,11 @@ Partner_out_plot = ggplot(Partner_summary_out_types_50, aes(x = query, y = type,
 # ggsave("./connectivity/M_l2PNl20_Partner_summary_out_types_50.png")
 # ggsave("./connectivity/M_spPN4t9_Partner_summary_out_types_50.png")
 # ggsave("./connectivity/M_ilPN8t91_M_ilPNm90_Partner_summary_out_types_50.png")
-# ggsave("./connectivity/M_imPNl92_Partner_summary_out_types_50.png")
+ggsave("./connectivity/M_imPNl92_Partner_summary_out_types_50.png")
 # ggsave("./connectivity/M_lvPNm24_Partner_summary_out_types_50.png")
 # ggsave("./connectivity/M_spPN5t10_Partner_summary_out_types_50.png")
-ggsave("./connectivity/M_vPNml50_Partner_summary_out_types_50.png")
+# ggsave("./connectivity/mALB1_Partner_summary_out_types_50.png")
+# ggsave("./connectivity/M_vPNml50_Partner_summary_out_types_50.png")
+# ggsave("./connectivity/ALBN1_Partner_summary_out_types_50.png")
 Partner_out_plot
 ```
